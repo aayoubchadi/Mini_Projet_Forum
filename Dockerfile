@@ -18,7 +18,7 @@ ADD https://repo1.maven.org/maven2/jakarta/servlet/jsp/jstl/jakarta.servlet.jsp.
 # Compile Java sources against Tomcat + the JARs in WEB-INF/lib
 RUN mkdir -p build/classes \
     && TOMCAT_VER=11.0.4 \
-    && curl -fsSL "https://dlcdn.apache.org/tomcat/tomcat-11/v${TOMCAT_VER}/bin/apache-tomcat-${TOMCAT_VER}.tar.gz" \
+    && curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-11/v${TOMCAT_VER}/bin/apache-tomcat-${TOMCAT_VER}.tar.gz" \
        | tar xz -C /opt \
     && TOMCAT_HOME=/opt/apache-tomcat-${TOMCAT_VER} \
     && CP=$(find ${TOMCAT_HOME}/lib src/main/webapp/WEB-INF/lib -name '*.jar' | tr '\n' ':') \
@@ -36,7 +36,7 @@ FROM eclipse-temurin:21-jre
 
 ENV TOMCAT_VER=11.0.4
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* \
-    && curl -fsSL "https://dlcdn.apache.org/tomcat/tomcat-11/v${TOMCAT_VER}/bin/apache-tomcat-${TOMCAT_VER}.tar.gz" \
+    && curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-11/v${TOMCAT_VER}/bin/apache-tomcat-${TOMCAT_VER}.tar.gz" \
        | tar xz -C /opt \
     && rm -rf /opt/apache-tomcat-${TOMCAT_VER}/webapps/*
 
