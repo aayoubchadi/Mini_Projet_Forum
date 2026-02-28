@@ -75,23 +75,19 @@ public final class ForumStore {
                 }
             }
 
-            // On cloud (PostgreSQL) auto-verify since SMTP is blocked; on Oracle keep OTP flow
-            int verified = connectionFactory.isPostgres() ? 1 : 0;
-
-            // Insert new user on the same connection
+            // Insert new user — unverified, needs email OTP
             String sql = "INSERT INTO FORUM_USERS (full_name, email, password_hash, verified, verification_code, "
                     + "code_expires_at, preferred_language, bio, created_at) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    + "VALUES (?, ?, ?, 0, ?, ?, ?, ?, ?)";
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, fullName.trim());
                 ps.setString(2, normalizedEmail);
                 ps.setString(3, sha256(password));
-                ps.setInt(4, verified);
-                ps.setString(5, code);
-                ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now().plusMinutes(OTP_EXPIRY_MINUTES)));
-                ps.setString(7, normalizedLang);
-                ps.setString(8, connectionFactory.isPostgres() ? "" : " ");
-                ps.setTimestamp(9, Timestamp.valueOf(LocalDateTime.now()));
+                ps.setString(4, code);
+                ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now().plusMinutes(OTP_EXPIRY_MINUTES)));
+                ps.setString(6, normalizedLang);
+                ps.setString(7, connectionFactory.isPostgres() ? "" : " ");
+                ps.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
                 ps.executeUpdate();
             }
 
