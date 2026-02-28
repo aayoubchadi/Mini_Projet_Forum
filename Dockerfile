@@ -47,7 +47,7 @@ ENV PATH="${CATALINA_HOME}/bin:${PATH}"
 COPY --from=build /app/forum.war ${CATALINA_HOME}/webapps/ROOT.war
 
 # Platform provides PORT env var; default 7860 for Hugging Face Spaces
-ENV PORT=7860
+ENV PORT=10000
 
 EXPOSE ${PORT}
-CMD bash -c "sed -i \"s/port=\\\"8080\\\"/port=\\\"$PORT\\\"/\" ${CATALINA_HOME}/conf/server.xml && catalina.sh run"
+CMD bash -c "sed -i \"s/port=\\\"8080\\\"/port=\\\"$PORT\\\"/\" ${CATALINA_HOME}/conf/server.xml && sed -i 's/port=\"8005\"/port=\"-1\"/' ${CATALINA_HOME}/conf/server.xml && catalina.sh run"

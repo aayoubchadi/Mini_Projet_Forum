@@ -24,6 +24,9 @@ public final class GmailOtpService {
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.connectiontimeout", "10000");
+        props.put("mail.smtp.timeout", "10000");
+        props.put("mail.smtp.writetimeout", "10000");
 
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
@@ -32,19 +35,25 @@ public final class GmailOtpService {
             }
         });
 
-        try {
-            Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(from));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
-            message.setSubject("Forum verification code");
-            String body = "Hello " + (fullName == null ? "" : fullName) + ",\n\n"
-                    + "Your forum verification code is: " + code + "\n"
-                    + "This code expires in " + expiryMinutes + " minutes.\n\n"
-                    + "If you did not request this account, ignore this email.";
-            message.setText(body);
-            Transport.send(message);
-        } catch (MessagingException e) {
-            throw new IllegalStateException("Failed to send OTP email via Gmail SMTP", e);
-        }
+        // Send email in a separate thread so registration doesn't block
+        Thread emailThread = new Thread(() -> {
+            try {
+                Message message = new MimeMessage(session);
+                message.setFrom(new InternetAddress(from));
+                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+                message.setSubject("Forum verification code");
+                String body = "Hello " + (fullName == null ? "" : fullName) + ",\n\n"
+                        + "Your forum verification code is: " + code + "\n"
+                        + "This code expires in " + expiryMinutes + " minutes.\n\n"
+                        + "If you did not request this account, ignore this email.";
+                message.setText(body);
+                Transport.send(message);
+                System.out.println("[GmailOtpService] Email sent to " + toEmail);
+            } catch (MessagingException e) {
+                System.err.println("[GmailOtpService] Failed to send email to " + toEmail + ": " + e.getMessage());
+            }
+        });
+        emailThread.setDaemon(true);
+        emailThread.start();
     }
 }
