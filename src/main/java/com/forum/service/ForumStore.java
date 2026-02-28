@@ -40,7 +40,26 @@ public final class ForumStore {
         String normalizedEmail = normalizeEmail(email);
         if (normalizedEmail.isEmpty() || password == null || password.length() < 4 || fullName == null
                 || fullName.trim().isEmpty()) {
+            System.err.println("[ForumStore] registerUser: validation failed");
             return null;
+        }
+
+        // If an unverified account already exists with this email, remove it so user can re-register
+        User existing = findUserByEmail(normalizedEmail);
+        if (existing != null) {
+            if (existing.isVerified()) {
+                System.err.println("[ForumStore] registerUser: email already verified: " + normalizedEmail);
+                return null; // genuinely taken
+            }
+            // Delete the old unverified row so the INSERT below succeeds
+            try (Connection conn = connectionFactory.getConnection();
+                 PreparedStatement del = conn.prepareStatement("DELETE FROM FORUM_USERS WHERE id = ?")) {
+                del.setInt(1, existing.getId());
+                del.executeUpdate();
+                System.out.println("[ForumStore] Deleted stale unverified account for " + normalizedEmail);
+            } catch (SQLException ex) {
+                System.err.println("[ForumStore] Failed to delete stale account: " + ex.getMessage());
+            }
         }
 
         String normalizedLang = "en".equalsIgnoreCase(lang) ? "en" : "fr";
@@ -62,6 +81,8 @@ public final class ForumStore {
             ps.executeUpdate();
             return findUserByEmail(normalizedEmail);
         } catch (SQLException e) {
+            System.err.println("[ForumStore] registerUser INSERT failed: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
