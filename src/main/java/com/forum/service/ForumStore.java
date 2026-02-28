@@ -111,6 +111,7 @@ public final class ForumStore {
     public boolean sendVerificationCode(String email) {
         User user = findUserByEmail(email);
         if (user == null || user.isVerified()) {
+            System.err.println("[ForumStore] sendVerificationCode: user null or already verified for " + email);
             return false;
         }
 
@@ -122,11 +123,15 @@ public final class ForumStore {
             ps.setInt(3, user.getId());
             int updated = ps.executeUpdate();
             if (updated == 0) {
+                System.err.println("[ForumStore] sendVerificationCode: UPDATE affected 0 rows for user " + user.getId());
                 return false;
             }
+            System.out.println("[ForumStore] sendVerificationCode: sending OTP to " + user.getEmail());
             otpService.sendOtpCode(user.getEmail(), user.getFullName(), code, OTP_EXPIRY_MINUTES);
             return true;
         } catch (Exception e) {
+            System.err.println("[ForumStore] sendVerificationCode FAILED: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
