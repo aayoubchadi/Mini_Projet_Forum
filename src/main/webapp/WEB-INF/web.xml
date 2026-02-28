@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+		 version="5.0">
+
+	<display-name>Mini_Projet_Forum</display-name>
+
+	<servlet>
+		<servlet-name>homeServlet</servlet-name>
+		<servlet-class>com.forum.web.HomeServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>homeServlet</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>homeServlet</servlet-name>
+		<url-pattern>/home</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>default</servlet-name>
+		<servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>default</servlet-name>
+		<url-pattern>/assets/*</url-pattern>
+	</servlet-mapping>
+
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+	<servlet>
+		<servlet-name>languageServlet</servlet-name>
+		<servlet-class>com.forum.web.LanguageServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>languageServlet</servlet-name>
+		<url-pattern>/lang</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>registerServlet</servlet-name>
+		<servlet-class>com.forum.web.RegisterServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>registerServlet</servlet-name>
+		<url-pattern>/register</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>verifyEmailServlet</servlet-name>
+		<servlet-class>com.forum.web.VerifyEmailServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>verifyEmailServlet</servlet-name>
+		<url-pattern>/verify</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>resendOtpServlet</servlet-name>
+		<servlet-class>com.forum.web.ResendOtpServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>resendOtpServlet</servlet-name>
+		<url-pattern>/verify/resend</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>loginServlet</servlet-name>
+		<servlet-class>com.forum.web.LoginServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>loginServlet</servlet-name>
+		<url-pattern>/login</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>logoutServlet</servlet-name>
+		<servlet-class>com.forum.web.LogoutServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>logoutServlet</servlet-name>
+		<url-pattern>/logout</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>dashboardServlet</servlet-name>
+		<servlet-class>com.forum.web.DashboardServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>dashboardServlet</servlet-name>
+		<url-pattern>/dashboard</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>articleCreateServlet</servlet-name>
+		<servlet-class>com.forum.web.ArticleCreateServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>articleCreateServlet</servlet-name>
+		<url-pattern>/article/create</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>articleDeleteServlet</servlet-name>
+		<servlet-class>com.forum.web.ArticleDeleteServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>articleDeleteServlet</servlet-name>
+		<url-pattern>/article/delete</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>commentCreateServlet</servlet-name>
+		<servlet-class>com.forum.web.CommentCreateServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>commentCreateServlet</servlet-name>
+		<url-pattern>/comment/create</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>commentDeleteServlet</servlet-name>
+		<servlet-class>com.forum.web.CommentDeleteServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>commentDeleteServlet</servlet-name>
+		<url-pattern>/comment/delete</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>profileServlet</servlet-name>
+		<servlet-class>com.forum.web.ProfileServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>profileServlet</servlet-name>
+		<url-pattern>/profile</url-pattern>
+	</servlet-mapping>
+
+</web-app>

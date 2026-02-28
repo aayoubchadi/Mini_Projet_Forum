@@ -1,0 +1,63 @@
+ 
+ 
+ 
+TP JEE-Blog    
+ 
+Objectifs : 
+ 
+Se familiariser avec les servlets, JSP et la JSTL. 
+ 
+Outils utilisés : 
+ 
+JDK, Eclipse, Apache Tomcat et les Navigateurs (Mozilla, Chrome) 
+ 
+ 
+Travail demandé 1(suite) : 
+1) Vote Blog doit assurer les fonctionnalités ci-dessous :  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+2) Validez l’inscription des membres à cet espace privé par email. 
+3) Proposez une liste contenant deux (Francais+Anglais), afin d’assurer l’internationalisation de 
+votre forum (Cf. Figure suivante) : 
+ 
+ 
+ 
+4) Choisir un meilleur hébergeur web gratuit pour héberger votre forum 
+ 
+ 
+ 
+Les présentations des projets par groupe le Lundi le 02 Mars 
+2026 (INCHA ALLAH) 
+ 
+ 
+ 
+ 
+ 
+Espace membres 
+  
+Gestion des articles 
+ 
+  
+Gestions commentaires 
+ 
+  
+Gestion des profils 
+ 
+3 
+4 
+1 
+2 

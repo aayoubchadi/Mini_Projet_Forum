@@ -1,0 +1,22 @@
+# Eclipse
+.settings/
+.classpath
+.project
+bin/
+
+# Build
+build/
+*.class
+*.war
+
+# Binary files (downloaded by Dockerfile at build time)
+*.jar
+*.pdf
+
+# IDE
+.metadata/
+*.log
+
+# OS
+Thumbs.db
+.DS_Store

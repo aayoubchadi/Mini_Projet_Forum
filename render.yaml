@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: mini-projet-forum
+    runtime: docker
+    plan: free
+    envVars:
+      - key: DB_URL
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: GMAIL_USERNAME
+        sync: false
+      - key: GMAIL_APPPASSWORD
+        sync: false
+      - key: MAIL_FROM
+        sync: false

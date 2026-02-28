@@ -1,0 +1,31 @@
+CREATE TABLE IF NOT EXISTS FORUM_USERS (
+    id SERIAL PRIMARY KEY,
+    full_name VARCHAR(120) NOT NULL,
+    email VARCHAR(190) NOT NULL UNIQUE,
+    password_hash VARCHAR(128) NOT NULL,
+    verified SMALLINT DEFAULT 0 NOT NULL,
+    verification_code VARCHAR(6),
+    code_expires_at TIMESTAMP,
+    preferred_language VARCHAR(2) DEFAULT 'fr' NOT NULL,
+    bio VARCHAR(1000) DEFAULT '' NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW() NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS FORUM_ARTICLES (
+    id SERIAL PRIMARY KEY,
+    author_id INTEGER NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+    CONSTRAINT fk_articles_author FOREIGN KEY (author_id) REFERENCES FORUM_USERS(id)
+);
+
+CREATE TABLE IF NOT EXISTS FORUM_COMMENTS (
+    id SERIAL PRIMARY KEY,
+    article_id INTEGER NOT NULL,
+    author_id INTEGER NOT NULL,
+    content VARCHAR(2000) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+    CONSTRAINT fk_comments_article FOREIGN KEY (article_id) REFERENCES FORUM_ARTICLES(id) ON DELETE CASCADE,
+    CONSTRAINT fk_comments_author FOREIGN KEY (author_id) REFERENCES FORUM_USERS(id)
+);

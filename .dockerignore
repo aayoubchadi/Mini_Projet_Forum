@@ -1,0 +1,10 @@
+.git
+build/
+.metadata
+*.class
+*.war
+.settings
+.classpath
+.project
+README.md
+assignment_extracted.txt
