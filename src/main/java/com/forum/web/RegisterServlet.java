@@ -30,6 +30,13 @@ public class RegisterServlet extends BaseServlet {
             return;
         }
 
+        // If already verified (cloud/PostgreSQL auto-verify), go straight to login
+        if (user.isVerified()) {
+            request.getSession(true).setAttribute("flash", "register.success.auto");
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
         boolean otpSent = store().sendVerificationCode(user.getEmail());
         request.setAttribute("email", user.getEmail());
         request.setAttribute("otpSent", otpSent);
