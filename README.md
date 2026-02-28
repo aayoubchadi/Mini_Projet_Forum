@@ -1,3 +1,12 @@
+---
+title: Mini Projet Forum
+emoji: 💬
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+---
+
 # Mini Projet Forum - TP JEE
 
 ## Fonctionnalités livrées (selon le sujet)
