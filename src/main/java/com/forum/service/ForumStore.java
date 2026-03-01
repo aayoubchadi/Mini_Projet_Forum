@@ -26,10 +26,12 @@ public final class ForumStore {
     private final GmailOtpService otpService = new GmailOtpService();
 
     private ForumStore() {
+        System.out.println("[ForumStore] Initializing... DB type: " + (connectionFactory.isPostgres() ? "PostgreSQL" : "Oracle"));
         if (connectionFactory.isPostgres()) {
             initPostgresSchema();
         }
         seedAdminIfMissing();
+        System.out.println("[ForumStore] Initialization complete. Ready to serve requests.");
     }
 
     public static ForumStore getInstance() {
@@ -90,7 +92,15 @@ public final class ForumStore {
             }
 
             conn.commit();
-            return findUserByEmail(normalizedEmail);
+            System.out.println("[ForumStore] registerUser: INSERT committed for " + normalizedEmail);
+
+            // Read back the inserted user on the same connection is not possible (already closed)
+            // Use a new connection to fetch:
+            User created = findUserByEmail(normalizedEmail);
+            if (created == null) {
+                System.err.println("[ForumStore] registerUser: INSERT succeeded but findUserByEmail returned null for " + normalizedEmail);
+            }
+            return created;
         } catch (SQLException e) {
             System.err.println("[ForumStore] registerUser failed: " + e.getMessage());
             e.printStackTrace();
@@ -163,22 +173,32 @@ public final class ForumStore {
 
     public User authenticate(String email, String password) {
         String normalizedEmail = normalizeEmail(email);
+        System.out.println("[ForumStore] authenticate attempt for: " + normalizedEmail);
         String sql = "SELECT id, full_name, email, password_hash, verified, preferred_language, bio, created_at "
                 + "FROM FORUM_USERS WHERE email = ?";
         try (Connection conn = connectionFactory.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, normalizedEmail);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) {
+                    System.err.println("[ForumStore] authenticate: no user found for " + normalizedEmail);
                     return null;
                 }
                 String dbPasswordHash = rs.getString("password_hash");
                 boolean verified = rs.getInt("verified") == 1;
-                if (!verified || !dbPasswordHash.equals(sha256(password == null ? "" : password))) {
+                if (!verified) {
+                    System.err.println("[ForumStore] authenticate: user not verified: " + normalizedEmail);
                     return null;
                 }
+                if (!dbPasswordHash.equals(sha256(password == null ? "" : password))) {
+                    System.err.println("[ForumStore] authenticate: wrong password for " + normalizedEmail);
+                    return null;
+                }
+                System.out.println("[ForumStore] authenticate: SUCCESS for " + normalizedEmail);
                 return mapUserRow(rs, null);
             }
         } catch (SQLException e) {
+            System.err.println("[ForumStore] authenticate FAILED: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
