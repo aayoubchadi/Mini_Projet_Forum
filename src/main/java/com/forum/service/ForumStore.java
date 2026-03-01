@@ -44,44 +44,55 @@ public final class ForumStore {
             return null;
         }
 
-        // If an unverified account already exists with this email, remove it so user can re-register
-        User existing = findUserByEmail(normalizedEmail);
-        if (existing != null) {
-            if (existing.isVerified()) {
-                System.err.println("[ForumStore] registerUser: email already verified: " + normalizedEmail);
-                return null; // genuinely taken
-            }
-            // Delete the old unverified row so the INSERT below succeeds
-            try (Connection conn = connectionFactory.getConnection();
-                 PreparedStatement del = conn.prepareStatement("DELETE FROM FORUM_USERS WHERE id = ?")) {
-                del.setInt(1, existing.getId());
-                del.executeUpdate();
-                System.out.println("[ForumStore] Deleted stale unverified account for " + normalizedEmail);
-            } catch (SQLException ex) {
-                System.err.println("[ForumStore] Failed to delete stale account: " + ex.getMessage());
-            }
-        }
-
         String normalizedLang = "en".equalsIgnoreCase(lang) ? "en" : "fr";
         String code = generateOtpCode();
 
-        String sql = "INSERT INTO FORUM_USERS (full_name, email, password_hash, verified, verification_code, "
-                + "code_expires_at, preferred_language, bio, created_at) "
-                + "VALUES (?, ?, ?, 0, ?, ?, ?, ?, ?)";
+        // Use a SINGLE connection for check + delete + insert to avoid pooling issues
+        try (Connection conn = connectionFactory.getConnection()) {
+            conn.setAutoCommit(false);
 
-        try (Connection conn = connectionFactory.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, fullName.trim());
-            ps.setString(2, normalizedEmail);
-            ps.setString(3, sha256(password));
-            ps.setString(4, code);
-            ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now().plusMinutes(OTP_EXPIRY_MINUTES)));
-            ps.setString(6, normalizedLang);
-            ps.setString(7, connectionFactory.isPostgres() ? "" : " ");
-            ps.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
-            ps.executeUpdate();
+            // Check if email already exists
+            try (PreparedStatement check = conn.prepareStatement(
+                    "SELECT id, verified FROM FORUM_USERS WHERE email = ?")) {
+                check.setString(1, normalizedEmail);
+                try (ResultSet rs = check.executeQuery()) {
+                    if (rs.next()) {
+                        if (rs.getInt("verified") == 1) {
+                            conn.rollback();
+                            System.err.println("[ForumStore] registerUser: email already verified: " + normalizedEmail);
+                            return null; // genuinely taken
+                        }
+                        // Delete unverified account on the same connection
+                        try (PreparedStatement del = conn.prepareStatement(
+                                "DELETE FROM FORUM_USERS WHERE id = ?")) {
+                            del.setInt(1, rs.getInt("id"));
+                            del.executeUpdate();
+                            System.out.println("[ForumStore] Deleted stale unverified account for " + normalizedEmail);
+                        }
+                    }
+                }
+            }
+
+            // Insert new user on the same connection
+            String sql = "INSERT INTO FORUM_USERS (full_name, email, password_hash, verified, verification_code, "
+                    + "code_expires_at, preferred_language, bio, created_at) "
+                    + "VALUES (?, ?, ?, 0, ?, ?, ?, ?, ?)";
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, fullName.trim());
+                ps.setString(2, normalizedEmail);
+                ps.setString(3, sha256(password));
+                ps.setString(4, code);
+                ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now().plusMinutes(OTP_EXPIRY_MINUTES)));
+                ps.setString(6, normalizedLang);
+                ps.setString(7, connectionFactory.isPostgres() ? "" : " ");
+                ps.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
+                ps.executeUpdate();
+            }
+
+            conn.commit();
             return findUserByEmail(normalizedEmail);
         } catch (SQLException e) {
-            System.err.println("[ForumStore] registerUser INSERT failed: " + e.getMessage());
+            System.err.println("[ForumStore] registerUser failed: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
